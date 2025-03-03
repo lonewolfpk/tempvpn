@@ -14,23 +14,23 @@ jobs:
 
       - name: Set Up OpenVPN Server
         run: |
-          sudo make-cadir /etc/openvpn/easy-rsa
+          sudo mkdir -p /etc/openvpn/easy-rsa
+          sudo ln -s /usr/share/easy-rsa/* /etc/openvpn/easy-rsa/
           cd /etc/openvpn/easy-rsa
-          sudo chmod -R 777 .
-          source ./vars
-          ./clean-all
-          ./build-ca --batch
-          ./build-key-server --batch server
-          ./build-dh
-          openvpn --genkey --secret keys/ta.key
-          sudo cp keys/{ca.crt,server.crt,server.key,dh2048.pem,ta.key} /etc/openvpn/
+          ./easyrsa init-pki
+          ./easyrsa --batch build-ca nopass
+          ./easyrsa --batch gen-req server nopass
+          ./easyrsa --batch sign-req server server
+          ./easyrsa gen-dh
+          openvpn --genkey --secret /etc/openvpn/easy-rsa/ta.key
+          sudo cp pki/ca.crt pki/private/server.key pki/issued/server.crt pki/dh.pem /etc/openvpn/
           echo "port 1194
 proto udp
 dev tun
 ca /etc/openvpn/ca.crt
 cert /etc/openvpn/server.crt
 key /etc/openvpn/server.key
-dh /etc/openvpn/dh2048.pem
+dh /etc/openvpn/dh.pem
 auth SHA256
 cipher AES-256-CBC
 persist-key
