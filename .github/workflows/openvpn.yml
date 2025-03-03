@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Deploy OpenVPN Server via SSH
-      uses: appleboy/ssh-action@v1
+      uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ env.OVPN_SERVER_IP }}
         username: ${{ env.SSH_USER }}
@@ -26,14 +26,4 @@ jobs:
           docker run -d \
             --name=openvpn-as \
             --cap-add=NET_ADMIN \
-            -e PUID=1000 \
-            -e PGID=1000 \
-            -e TZ=Etc/UTC \
-            -e INTERFACE=eth0 \
-            -e ADMIN_PASSWORD=${{ secrets.OVPN_ADMIN_PASSWORD }} \
-            -p 943:943 \
-            -p 9443:9443 \
-            -p 1194:1194/udp \
-            -v /var/lib/docker-volumes/openvpn-as/config:/config \
-            --restart unless-stopped \
-            linuxserver/openvpn-as
+            -
